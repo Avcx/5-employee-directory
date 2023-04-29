@@ -9,6 +9,7 @@ const profilesToLoad = 48
 let currentPage = 1;
 const pageButtons = document.querySelector('.page-links');
 const gallery = document.querySelector('#gallery')
+let modalContainer;
 
 
 fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
@@ -85,17 +86,17 @@ function addPageButtons() {
 }
 
 function showModal(input) {
-    let employeeNum;
+    let employeeNum = 0;
     if (input.id) {
-        employeeNum = input.id;
+        employeeNum = parseInt(input.id);
     } else {
-        employeeNum = input;
+        employeeNum = parseInt(input);
     }
 
         let employeePhone;
         const phoneNumberRegEx = /([A-Z0-9]{3})[\D]*([A-Z0-9]{3})[\D]*([A-Z0-9]{4})[\D]*/i;
         console.log(event);
-        let employee = employees[parseInt(employeeNum)];
+        let employee = employees[employeeNum];
         console.log(employee.phone);
         if (phoneNumberRegEx.test(employee.phone)) {
             if (!employee.phone.startsWith('(')) {
@@ -106,8 +107,11 @@ function showModal(input) {
             console.log(employeePhone);
         }
 
-        const modal = `            
-        <div class="modal-container">
+        modalContainer = document.createElement('div');
+        modalContainer.className = 'modal-container';
+        gallery.insertAdjacentElement('afterend', modalContainer)
+
+        let modal = `            
             <div class="modal">
                 <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
                 <div class="modal-info-container">
@@ -121,21 +125,36 @@ function showModal(input) {
                     <p class="modal-text">Birthday: 10/21/2015</p>
                 </div>
             </div>
-            <div class="modal-btn-container">
-                <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-                <button type="button" id="modal-next" class="modal-next btn">Next</button>
-            </div>
-        </div>`
-        gallery.insertAdjacentHTML('afterend', modal);
+            <div class="modal-btn-container">`;
+        
+        if (employeeNum !== 0) {
+            modal += '<button type="button" id="modal-prev" class="modal-prev btn">Prev</button>'
+        }
+        if (employeeNum !== employees.length - 1) {
+            modal += '<button type="button" id="modal-next" class="modal-next btn">Next</button>'
+        }
+        modal += `
+        </div>`;
+
+        modalContainer.insertAdjacentHTML('afterbegin', modal);
+
+        function scrollUsers(direction) {
+            if (direction === 'Next') {
+                showModal(employeeNum + 1);
+            } else {
+                showModal(employeeNum - 1);
+            }
+        }
 
         document.querySelector('.modal-container').addEventListener('click', event => {
             console.log(event);
             if (event.target.tagName === 'BUTTON' || event.target.tagName === 'STRONG') {
                 if (event.target.id === 'modal-close-btn' || event.target.parentNode.id === 'modal-close-btn') {
-                    const modalContainer = document.querySelector('.modal-container');
                     modalContainer.remove();
                 } else {
-                    
+                    let action = event.target.textContent;
+                    modalContainer.remove();
+                    scrollUsers(action);
                 }
             }
         })
