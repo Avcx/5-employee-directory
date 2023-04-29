@@ -151,9 +151,11 @@ header h1 {
     right: 15px;
     cursor: pointer;
     color: rgba(255, 255, 255, 0.9);
-    background: rgba(0, 0, 0, 0.8);
+    background-color: #6d778a;
     border-radius: 0.25em;
+    box-shadow: 0 1px 3px 0 rgba(22, 42, 90, 0.05);
     border: 1px solid rgba(50, 50, 50, 0.3);
+    transition: .2s ease-out;
 }
 
 .modal-img {
@@ -199,9 +201,10 @@ header h1 {
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.9);
     padding: 0.75em 1.5em;
-    background: rgba(0, 0, 0, 0.8);
+    background-color: #6d778a;
     border-radius: 0.35em;
-    transition: .4s ease-out;
+    box-shadow: 0 1px 3px 0 rgba(22, 42, 90, 0.05);
+    transition: .2s ease-out;
   }
   
 
@@ -257,6 +260,10 @@ header h1 {
         background: rgba(255, 255, 255, 1);
         color: rgba(25, 25, 25, 1); 
     }
+    .modal-close-btn:hover {
+        color: rgba(255, 255, 255, 0.9);
+        background-color: #d22319;
+    }
 }
 
 /* ==================================
@@ -284,7 +291,7 @@ ul {
     border-radius: 3px;
     text-decoration: none;
     box-shadow: 0 1px 3px 0 rgba(22, 42, 90, 0.05);
-    transition: 0.1s;
+    transition: 0.2s;
 }
 
 .pagination li button.active, .pagination li button:hover {
