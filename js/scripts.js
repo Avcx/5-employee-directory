@@ -5,12 +5,43 @@
 */
 
 const profilesPerPage = 12;
-const profilesToLoad = 48;
+const profilesToLoad = 12;
 let currentPage = 1;
 const pageButtons = document.querySelector('.page-links');
 const gallery = document.querySelector('#gallery');
+const searchContainer = document.querySelector('.search-container');
 let modalContainer;
 
+searchContainer.insertAdjacentHTML('beforeend', `
+    <form action="#" method="get">
+        <input type="search" id="search-input" class="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>
+`)
+
+const searchBox = document.querySelector('#search-input');
+const searchSubmit = document.querySelector('#search-submit');
+
+searchSubmit.addEventListener('click', search)
+searchBox.addEventListener('input', search);
+
+function search(e) {
+    e.preventDefault();
+    const searchFor = searchBox.value.toLowerCase();
+
+    if (/\w+/ig.test(searchFor)) {
+        searchResults = employees.filter( employee => employee.name.first.toLowerCase().includes(searchFor) || employee.name.last.toLowerCase().includes(searchFor))
+        showPage(searchResults, 1);
+    } else {
+        showPage(employees, 1);
+    }
+    if (searchFor )
+    gallery.insertAdjacentHTML('afterbegin', `<h4>There were ${searchResults.length} results found for "${searchFor}"</h4>`);
+}
+
+/*
+    Uses the fetch API to get the info of the users
+*/
 
 fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
     .then(res => res.json())
@@ -24,6 +55,11 @@ function parseUsers(users) {
     showPage(employees, 1);
 }
 
+/**
+ * showPage function
+ * @param {Array} list - The is the data to be displayed on the page, when searching the list will change to the search results
+ * @param {number} page -  The page that should be displayed from the list
+ */
 
 function showPage(list, page) {
 
@@ -35,10 +71,10 @@ function showPage(list, page) {
     function createDiv(type, data) {
         if (type === 'img') {
 
-            let imgDiv = document.createElement('div');
+            const imgDiv = document.createElement('div');
             imgDiv.setAttribute('class', 'card-img-container');
 
-            let img = document.createElement('img');
+            const img = document.createElement('img');
             img.setAttribute('class', 'card-img')
             img.setAttribute('src', data['picture']['large'])
             img.setAttribute('alt', `profile picture of ${data['name']['first']} ${data['name']['last']}`)
@@ -49,7 +85,7 @@ function showPage(list, page) {
 
         } else if (type === 'info') {
 
-            let infoDiv = document.createElement('div');
+            const infoDiv = document.createElement('div');
             infoDiv.setAttribute('class', 'card-info-container')
 
             infoDiv.insertAdjacentHTML('beforeend', `
@@ -69,17 +105,17 @@ function showPage(list, page) {
         employeeCard.setAttribute('class', 'card');
         employeeCard.setAttribute('id', id);
 
+        // Add relevant employee info to the 'employeeCard' element
+
         employeeCard.insertAdjacentElement('beforeend', createDiv('img', employee));
         employeeCard.insertAdjacentElement('beforeend', createDiv('info', employee));
 
+        gallery.insertAdjacentElement('beforeend', employeeCard);
 
-    gallery.insertAdjacentElement('beforeend', employeeCard);
-        const card = document.getElementById(id);
+        // Adds an event listener to the 'employeeCard' element to open the modal
 
-        // Adds an event listener to the card to open the modal
-
-        card.addEventListener('click', event => {
-                showModal(card);
+        employeeCard.addEventListener('click', event => {
+                showModal(employeeCard);
          });
     };
 
@@ -89,6 +125,10 @@ function showPage(list, page) {
         more data to append to the page.
     */
 
+    if (list.length === 0) {
+        return gallery.innerHTML = '<h4>Bummer... No results found.</h4>'
+    }
+
     for (i = startIndex; i < endIndex; i++) {
         if (list[i]) {
             createEmployee(list[i], i);
@@ -97,48 +137,47 @@ function showPage(list, page) {
         }
     };
 
-    addPageButtons();
+    // addPageButtons();
 }
 
-function addPageButtons() {
+// function addPageButtons() {
 
-    const numOfPages = Math.ceil(employees.length / profilesPerPage);
+//     const numOfPages = Math.ceil(employees.length / profilesPerPage);
 
-    pageButtons.innerHTML = '';
+//     pageButtons.innerHTML = '';
 
-    for (let i = 1; i <= numOfPages; i++) {
-       if (i === currentPage) {
-          pageButtons.insertAdjacentHTML('beforeend', `
-             <li>
-                <button type="button" class="active">${i}</button>
-             </li>
-          `);
-       } else {
-          pageButtons.insertAdjacentHTML('beforeend', `
-          <li>
-             <button type="button">${i}</button>
-          </li>
-        `);
-       };
-    };
-}
+//     for (let i = 1; i <= numOfPages; i++) {
+//        if (i === currentPage) {
+//           pageButtons.insertAdjacentHTML('beforeend', `
+//              <li>
+//                 <button type="button" class="active">${i}</button>
+//              </li>
+//           `);
+//        } else {
+//           pageButtons.insertAdjacentHTML('beforeend', `
+//           <li>
+//              <button type="button">${i}</button>
+//           </li>
+//         `);
+//        };
+//     };
+// }
 
 function showModal(input) {
-    let employeeNum = 0;
-    if (input.id) {
-        employeeNum = parseInt(input.id);
-    } else {
-        employeeNum = parseInt(input);
-    }
+    let employeeNum;
+
+    // This ternary statment checks to see if an element or an id number was passed through.
+
+    input.id ? employeeNum = parseInt(input.id) : employeeNum = parseInt(input);
+
+    // This if statement 
+
+    if (employeeNum === undefined) return false;
 
         let employeePhone;
         const phoneNumberRegEx = /([A-Z0-9]{3})[\D]*([A-Z0-9]{3})[\D]*([A-Z0-9]{4})[\D]*/i;
         let employee = employees[employeeNum];
-        console.log(employee);
-
         let employeeBirthday = new Date(employee.dob.date)
-
-        console.log(employeeBirthday);
 
         if (phoneNumberRegEx.test(employee.cell)) {
             if (!employee.cell.startsWith('(')) {
@@ -146,12 +185,13 @@ function showModal(input) {
             } else {
                 employeePhone = employee.cell;
             }
-            console.log(employeePhone);
         }
 
         modalContainer = document.createElement('div');
         modalContainer.className = 'modal-container';
         gallery.insertAdjacentElement('afterend', modalContainer)
+
+        // modal variable holds all the mark up for the modal window
 
         let modal = `            
             <div class="modal">
@@ -184,6 +224,7 @@ function showModal(input) {
         modalContainer.insertAdjacentHTML('afterbegin', modal);
 
         function scrollUsers(direction) {
+
             if (direction === 'Next') {
                 showModal(employeeNum + 1);
             } else {
@@ -192,10 +233,12 @@ function showModal(input) {
         }
 
         document.querySelector('.modal-container').addEventListener('click', event => {
-            console.log(event);
+
             if (event.target.tagName === 'BUTTON' || event.target.tagName === 'STRONG') {
+
                 if (event.target.id === 'modal-close-btn' || event.target.parentNode.id === 'modal-close-btn') {
                     modalContainer.remove();
+
                 } else {
                     let action = event.target.textContent;
                     modalContainer.remove();
@@ -205,12 +248,12 @@ function showModal(input) {
         })
 }
 
-pageButtons.addEventListener('click', (e) => {
+// pageButtons.addEventListener('click', (e) => {
 
-    if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
-       const page = parseInt(e.target.textContent);
-       currentPage = page;
-       showPage(employees, page);
-    }
+//     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
+//        const page = parseInt(e.target.textContent);
+//        currentPage = page;
+//        showPage(employees, page);
+//     }
  
- });
+//  });
