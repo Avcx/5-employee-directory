@@ -5,7 +5,7 @@
 */
 
 const profilesPerPage = 12;
-const profilesToLoad = 12;
+const profilesToLoad = 24;
 
 let currentPage = 1;
 let currentList = [];
@@ -58,7 +58,9 @@ fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
     .catch(err => console.log(err));
 
 function parseUsers(data) {
+
     let users = [];
+
     for (i=0; i < data.length; i++) {
         data[i].id = i;
         users.push(data[i])
@@ -144,39 +146,42 @@ function showPage(list, page) {
         return gallery.innerHTML = '<h4>Bummer... No results found.</h4>'
     }
 
+    let itemNumber = 0;
+
     for (i = startIndex; i < endIndex; i++) {
         if (list[i]) {
-            createEmployee(list[i], i);
+            createEmployee(list[i], itemNumber);
+            itemNumber++
         } else {
             break;
         }
     };
 
-    // addPageButtons();
+    addPageButtons();
 }
 
-// function addPageButtons() {
+function addPageButtons() {
 
-//     const numOfPages = Math.ceil(employees.length / profilesPerPage);
+    const numOfPages = Math.ceil(employees.length / profilesPerPage);
 
-//     pageButtons.innerHTML = '';
+    pageButtons.innerHTML = '';
 
-//     for (let i = 1; i <= numOfPages; i++) {
-//        if (i === currentPage) {
-//           pageButtons.insertAdjacentHTML('beforeend', `
-//              <li>
-//                 <button type="button" class="active">${i}</button>
-//              </li>
-//           `);
-//        } else {
-//           pageButtons.insertAdjacentHTML('beforeend', `
-//           <li>
-//              <button type="button">${i}</button>
-//           </li>
-//         `);
-//        };
-//     };
-// }
+    for (let i = 1; i <= numOfPages; i++) {
+       if (i === currentPage) {
+          pageButtons.insertAdjacentHTML('beforeend', `
+             <li>
+                <button type="button" class="active">${i}</button>
+             </li>
+          `);
+       } else {
+          pageButtons.insertAdjacentHTML('beforeend', `
+          <li>
+             <button type="button">${i}</button>
+          </li>
+        `);
+       };
+    };
+}
 
 function showModal(input) {
     let htmlReference
@@ -232,11 +237,15 @@ function showModal(input) {
         <div class="modal-btn-container">`;
 
     // These conditional statements append `Next` or `Prev` buttons as needed.
+    const firstItem = parseInt(gallery.firstElementChild.getAttribute('data-item-number'));
     
-    if (cardItemNumber !== 0) {
+    if (cardItemNumber !== firstItem) {
         modal += '<button type="button" id="modal-prev" class="modal-prev btn">Prev</button>'
     }
-    if (cardItemNumber !== currentList.length - 1) {
+
+    const lastItem = parseInt(gallery.lastElementChild.getAttribute('data-item-number'));
+
+    if (cardItemNumber !== lastItem) {
         modal += '<button type="button" id="modal-next" class="modal-next btn">Next</button>'
     }
 
@@ -270,12 +279,12 @@ function showModal(input) {
     })
 }
 
-// pageButtons.addEventListener('click', (e) => {
+pageButtons.addEventListener('click', (e) => {
 
-//     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
-//        const page = parseInt(e.target.textContent);
-//        currentPage = page;
-//        showPage(employees, page);
-//     }
+    if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
+       const page = parseInt(e.target.textContent);
+       currentPage = page;
+       showPage(employees, page);
+    }
  
-//  });
+ });
