@@ -6,25 +6,35 @@
 
 // The following variables are here to allow pagination functionality
 
-const profilesPerPage = 12;
-const profilesToLoad = 24;
+const profilesPerPage   = 12;
+const profilesToLoad    = 24;
 
 let currentPage = 1;
 let currentList = []; // Holds the data of the search term or all the employees
-let employees = []; // Used to keep reference of the fetched api data
+let employees   = []; // Used to keep reference of the fetched api data
 
+
+const animationLength = 150;
 
 /*
     commonly referenced HTML elements
 */
 
 // const pageButtons = document.querySelector('.page-links');
-const gallery = document.querySelector('#gallery');
-const searchContainer = document.querySelector('.search-container');
-const searchCounter = document.querySelector('#search-counter');
+const gallery           = document.querySelector('#gallery');
+const searchContainer   = document.querySelector('.search-container');
+const searchCounter     = document.querySelector('#search-counter');
 
+/*
+    Modal Window is created
+*/
 
-let modalContainer;
+const modalContainer     = document.createElement('div');
+let modalSelection       = 0;
+modalContainer.classList.add('modal-container', 'close');
+modalContainer.style.display = 'none';
+
+gallery.insertAdjacentElement('afterend', modalContainer)
 
 /*
     This method inserts the search field onto the page
@@ -37,8 +47,10 @@ searchContainer.insertAdjacentHTML('beforeend', `
     </form>
 `)
 
-const searchBox = document.querySelector('#search-input');
-const searchSubmit = document.querySelector('#search-submit');
+const searchBox     = document.querySelector('#search-input');
+const searchSubmit  = document.querySelector('#search-submit');
+
+// Listeners are added to the search elements
 
 searchSubmit.addEventListener('click', search)
 searchBox.addEventListener('input', search);
@@ -138,7 +150,7 @@ function showPage(list, page) {
 
         const employeeCard = document.createElement('div');
 
-        employeeCard.setAttribute('class', 'card');
+        employeeCard.classList.add('card', 'loading');
         employeeCard.setAttribute('id', employee.id);
         employeeCard.setAttribute('data-item-number', itemNumber); // This attribute is used to identitfy card position
 
@@ -148,6 +160,7 @@ function showPage(list, page) {
         employeeCard.insertAdjacentElement('beforeend', createDiv('info', employee));
 
         gallery.insertAdjacentElement('beforeend', employeeCard);
+        setTimeout(() => employeeCard.classList.remove('loading'), 50);
 
         // Adds an event listener to the 'employeeCard' element to open the modal
 
@@ -207,8 +220,10 @@ function showPage(list, page) {
     `showModal` function creates and displays a modal with more info about a selected employee
 */
 
-function showModal(input) {
-    let htmlReference
+function showModal(input, animation) {
+
+    modalContainer.innerHTML = '';
+    let htmlReference;
 
     if (input.id) {
         htmlReference = input;
@@ -235,16 +250,12 @@ function showModal(input) {
         }
     }
 
-    modalContainer = document.createElement('div');
-    modalContainer.className = 'modal-container';
-    gallery.insertAdjacentElement('afterend', modalContainer)
-
     // modal variable holds all the mark up for the modal window
 
     let modal = `            
-        <div class="modal">
+        <div class="modal ${animation}">
             <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-            <div class="modal-info-container">
+            <div class="modal-info-container" id="${htmlReference.id}-employee">
                 <img class="modal-img" src="${employee.picture.large}" alt="profile picture">
                 <h3 id="name" class="modal-name cap">${employee.name.first} ${employee.name.last}</h3>
                 <p class="modal-text">${employee.email}</p>
@@ -272,34 +283,42 @@ function showModal(input) {
 
     modal += `
     </div>`;
-
+    modalContainer.style.display = '';
     modalContainer.insertAdjacentHTML('afterbegin', modal);
+    const modalElement = document.querySelector('.modal');
 
-    function scrollUsers(direction) {
+    setTimeout(() => {
+        modalElement.classList.remove(animation)
+        modalContainer.classList.remove('close');
+    }, animationLength);
 
-        if (direction === 'Next') {
-            showModal(cardItemNumber + 1);
-        } else {
-            showModal(cardItemNumber - 1);
-        }
-    }
-
-    document.querySelector('.modal-container').addEventListener('click', event => {
-
-        if (event.target.tagName === 'BUTTON' || event.target.tagName === 'STRONG') {
-
-            if (event.target.id === 'modal-close-btn' || event.target.parentNode.id === 'modal-close-btn') {
-                modalContainer.remove();
-
-            } else {
-                let action = event.target.textContent;
-                modalContainer.remove();
-                scrollUsers(action);
-            }
-        }
-    })
+    modalSelection = cardItemNumber;
 }
 
+modalContainer.addEventListener('click', (event, cardItemNumber) => {
+
+    const modal = document.querySelector('.modal');
+
+    if (event.target.tagName === 'BUTTON' || event.target.tagName === 'STRONG') {
+
+        if (event.target.id === 'modal-close-btn' || event.target.parentNode.id === 'modal-close-btn') {
+            modalContainer.classList.add('close')
+            setTimeout(() => {
+                modalContainer.style.display = 'none';
+                modalContainer.innerHTML = '';
+            }, 400);
+        } else {
+            let action = event.target.textContent;
+            if (action === 'Next') {
+                modal.classList.add('next');
+                setTimeout(showModal, animationLength, modalSelection + 1, 'prev')
+            } else {
+                modal.classList.add('prev');
+                setTimeout(showModal, animationLength, modalSelection - 1, 'next')
+            }
+        }
+    }
+})
 // pageButtons.addEventListener('click', (e) => {
 
 //     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {

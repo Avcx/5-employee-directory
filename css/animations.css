@@ -1,0 +1,16 @@
+.next {
+    transform: translate(-100vw);
+}
+
+.prev {
+    transform: translate(100vw);
+}
+
+.close {
+    opacity: 0;
+}
+
+.loading {
+    opacity: 0;
+    transform: translateY(-10px);
+}
