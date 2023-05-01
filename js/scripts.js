@@ -4,20 +4,31 @@
 
 */
 
+// The following variables are here to allow pagination functionality
+
 const profilesPerPage = 12;
 const profilesToLoad = 24;
 
 let currentPage = 1;
-let currentList = [];
-let employees;
+let currentList = []; // Holds the data of the search term or all the employees
+let employees = []; // Used to keep reference of the fetched api data
 
-const pageButtons = document.querySelector('.page-links');
+
+/*
+    commonly referenced HTML elements
+*/
+
+// const pageButtons = document.querySelector('.page-links');
 const gallery = document.querySelector('#gallery');
 const searchContainer = document.querySelector('.search-container');
 const searchCounter = document.querySelector('#search-counter');
 
 
 let modalContainer;
+
+/*
+    This method inserts the search field onto the page
+*/
 
 searchContainer.insertAdjacentHTML('beforeend', `
     <form action="#" method="get">
@@ -32,9 +43,15 @@ const searchSubmit = document.querySelector('#search-submit');
 searchSubmit.addEventListener('click', search)
 searchBox.addEventListener('input', search);
 
+/*
+    `search` function finds employees with parts of their name matching the value of the search box
+*/
+
 function search(e) {
     e.preventDefault();
     const searchFor = searchBox.value.toLowerCase();
+
+    // This 'if' statement checks if the search box is empty
 
     if (/\w+/ig.test(searchFor)) {
         searchResults = employees.filter( employee => employee.name.first.toLowerCase().includes(searchFor) || employee.name.last.toLowerCase().includes(searchFor));
@@ -49,35 +66,38 @@ function search(e) {
 }
 
 /*
-    Uses the fetch API to get the info of the users
+    Uses the fetch API to get the info of the employees
 */
 
 fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
     .then(res => res.json())
-    .then(data => parseUsers(data.results))
+    .then(data => parseEmployees(data.results))
     .catch(err => console.log(err));
 
-function parseUsers(data) {
+/*
+    `parseEmployees` function will add an id to each employee and add them to the global 'employees' array
+*/
 
-    let users = [];
+function parseEmployees(data) {
 
+    // Interates through each object in the data parameter array
     for (i=0; i < data.length; i++) {
         data[i].id = i;
-        users.push(data[i])
+        employees.push(data[i])
     }
 
-    employees = (users);
     currentList = employees;
     showPage(employees, 1);
 }
 
-/**
- * showPage function
- * @param {Array} list - The is the data to be displayed on the page, when searching the list will change to the search results
- * @param {number} page -  The page that should be displayed from the list
+/*
+   showPage function takes the provided data and the requested page number to display the correct employees
  */
 
 function showPage(list, page) {
+
+    // These 'Index' variables are here to help pagination feature know the range of the employee profiles to be displayed
+    
 
     const startIndex = (page * profilesPerPage) - profilesPerPage; 
     const endIndex = page * profilesPerPage;
@@ -120,7 +140,7 @@ function showPage(list, page) {
 
         employeeCard.setAttribute('class', 'card');
         employeeCard.setAttribute('id', employee.id);
-        employeeCard.setAttribute('data-item-number', itemNumber);
+        employeeCard.setAttribute('data-item-number', itemNumber); // This attribute is used to identitfy card position
 
         // Add relevant employee info to the 'employeeCard' element
 
@@ -136,17 +156,17 @@ function showPage(list, page) {
          });
     };
 
+    if (list.length === 0) {
+        return gallery.innerHTML = '<h4>Bummer... No results</h4>'
+    }
+
+    let itemNumber = 0;
+
     /* 
         This for statement loops through all the profiles that should appear on the page
         The condtional statement inside breaks the loop as soon as there is no
         more data to append to the page.
     */
-
-    if (list.length === 0) {
-        return gallery.innerHTML = '<h4>Bummer... No results found.</h4>'
-    }
-
-    let itemNumber = 0;
 
     for (i = startIndex; i < endIndex; i++) {
         if (list[i]) {
@@ -157,36 +177,38 @@ function showPage(list, page) {
         }
     };
 
-    addPageButtons();
+    // addPageButtons();
 }
 
-function addPageButtons() {
+// function addPageButtons() {
 
-    const numOfPages = Math.ceil(employees.length / profilesPerPage);
+//     const numOfPages = Math.ceil(employees.length / profilesPerPage);
 
-    pageButtons.innerHTML = '';
+//     pageButtons.innerHTML = '';
 
-    for (let i = 1; i <= numOfPages; i++) {
-       if (i === currentPage) {
-          pageButtons.insertAdjacentHTML('beforeend', `
-             <li>
-                <button type="button" class="active">${i}</button>
-             </li>
-          `);
-       } else {
-          pageButtons.insertAdjacentHTML('beforeend', `
-          <li>
-             <button type="button">${i}</button>
-          </li>
-        `);
-       };
-    };
-}
+//     for (let i = 1; i <= numOfPages; i++) {
+//        if (i === currentPage) {
+//           pageButtons.insertAdjacentHTML('beforeend', `
+//              <li>
+//                 <button type="button" class="active">${i}</button>
+//              </li>
+//           `);
+//        } else {
+//           pageButtons.insertAdjacentHTML('beforeend', `
+//           <li>
+//              <button type="button">${i}</button>
+//           </li>
+//         `);
+//        };
+//     };
+// }
+
+/*
+    `showModal` function creates and displays a modal with more info about a selected employee
+*/
 
 function showModal(input) {
     let htmlReference
-    let employeeNum;
-    let cardItemNumber;
 
     if (input.id) {
         htmlReference = input;
@@ -194,10 +216,9 @@ function showModal(input) {
         htmlReference = gallery.children[input];
     }
 
-    employeeNum = parseInt(htmlReference.id)
-    cardItemNumber = parseInt(htmlReference.getAttribute('data-item-number'));
+    const employeeNum = parseInt(htmlReference.id)
+    const cardItemNumber = parseInt(htmlReference.getAttribute('data-item-number'));
 
-    // This if statement 
 
     if (employeeNum === undefined) {return false};
 
@@ -279,12 +300,12 @@ function showModal(input) {
     })
 }
 
-pageButtons.addEventListener('click', (e) => {
+// pageButtons.addEventListener('click', (e) => {
 
-    if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
-       const page = parseInt(e.target.textContent);
-       currentPage = page;
-       showPage(employees, page);
-    }
+//     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
+//        const page = parseInt(e.target.textContent);
+//        currentPage = page;
+//        showPage(employees, page);
+//     }
  
- });
+//  });
