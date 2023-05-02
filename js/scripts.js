@@ -20,7 +20,7 @@ const animationLength = 150;
     commonly referenced HTML elements
 */
 
-// const pageButtons = document.querySelector('.page-links');
+const pageButtons = document.querySelector('.page-links');
 const gallery           = document.querySelector('#gallery');
 const searchContainer   = document.querySelector('.search-container');
 const searchCounter     = document.querySelector('#search-counter');
@@ -190,31 +190,31 @@ function showPage(list, page) {
         }
     };
 
-    // addPageButtons();
+    addPageButtons();
 }
 
-// function addPageButtons() {
+function addPageButtons() {
 
-//     const numOfPages = Math.ceil(employees.length / profilesPerPage);
+    const numOfPages = Math.ceil(employees.length / profilesPerPage);
 
-//     pageButtons.innerHTML = '';
+    pageButtons.innerHTML = '';
 
-//     for (let i = 1; i <= numOfPages; i++) {
-//        if (i === currentPage) {
-//           pageButtons.insertAdjacentHTML('beforeend', `
-//              <li>
-//                 <button type="button" class="active">${i}</button>
-//              </li>
-//           `);
-//        } else {
-//           pageButtons.insertAdjacentHTML('beforeend', `
-//           <li>
-//              <button type="button">${i}</button>
-//           </li>
-//         `);
-//        };
-//     };
-// }
+    for (let i = 1; i <= numOfPages; i++) {
+       if (i === currentPage) {
+          pageButtons.insertAdjacentHTML('beforeend', `
+             <li>
+                <button type="button" class="active">${i}</button>
+             </li>
+          `);
+       } else {
+          pageButtons.insertAdjacentHTML('beforeend', `
+          <li>
+             <button type="button">${i}</button>
+          </li>
+        `);
+       };
+    };
+}
 
 /*
     `showModal` function creates and displays a modal with more info about a selected employee
@@ -319,12 +319,12 @@ modalContainer.addEventListener('click', (event, cardItemNumber) => {
         }
     }
 })
-// pageButtons.addEventListener('click', (e) => {
+pageButtons.addEventListener('click', (e) => {
 
-//     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
-//        const page = parseInt(e.target.textContent);
-//        currentPage = page;
-//        showPage(employees, page);
-//     }
+    if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
+       const page = parseInt(e.target.textContent);
+       currentPage = page;
+       showPage(employees, page);
+    }
  
-//  });
+ });
