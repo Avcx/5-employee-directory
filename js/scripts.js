@@ -93,7 +93,7 @@ fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
 function parseEmployees(data) {
 
     // Interates through each object in the data parameter array
-    for (i=0; i < data.length; i++) {
+    for (let i=0; i < data.length; i++) {
         data[i].id = i;
         employees.push(data[i])
     }
