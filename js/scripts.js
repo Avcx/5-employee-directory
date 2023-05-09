@@ -195,7 +195,7 @@ function showPage(list, page) {
 
 function addPageButtons() {
 
-    const numOfPages = Math.ceil(employees.length / profilesPerPage);
+    const numOfPages = Math.ceil(currentList.length / profilesPerPage);
 
     pageButtons.innerHTML = '';
 
