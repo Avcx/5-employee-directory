@@ -324,7 +324,7 @@ pageButtons.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON' && e.target.className !== 'active') {
        const page = parseInt(e.target.textContent);
        currentPage = page;
-       showPage(employees, page);
+       showPage(currentList, page);
     }
  
  });
