@@ -82,7 +82,12 @@ function search(e) {
     Uses the fetch API to get the info of the employees
 */
 
-fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`)
+fetch(`https://randomuser.me/api/?results=${profilesToLoad}&nat=us,ca`, {
+    mode: 'cors',
+    headers: {
+      'Access-Control-Allow-Origin':'*'
+    }
+  })
     .then(res => res.json())
     .then(data => parseEmployees(data.results))
     .catch(err => console.log(err));
