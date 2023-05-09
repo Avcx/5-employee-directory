@@ -65,11 +65,12 @@ function search(e) {
 
     // This 'if' statement checks if the search box is empty
 
-    if (/\w+/ig.test(searchFor)) {
+    if (searchFor.length > 0) {
         searchResults = employees.filter( employee => employee.name.first.toLowerCase().includes(searchFor) || employee.name.last.toLowerCase().includes(searchFor));
         currentList = searchResults;
         showPage(searchResults, 1);
         searchCounter.textContent = `There were ${searchResults.length} results found for "${searchFor}"`
+        addPageButtons(searchResults);
     } else {
         currentList = employees;
         showPage(employees, 1);
@@ -193,9 +194,9 @@ function showPage(list, page) {
     addPageButtons();
 }
 
-function addPageButtons() {
+function addPageButtons(list = currentList) {
 
-    const numOfPages = Math.ceil(currentList.length / profilesPerPage);
+    const numOfPages = Math.ceil(list.length / profilesPerPage);
 
     pageButtons.innerHTML = '';
 
